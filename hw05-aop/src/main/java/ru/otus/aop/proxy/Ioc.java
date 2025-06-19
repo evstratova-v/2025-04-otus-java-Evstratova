@@ -3,8 +3,9 @@ package ru.otus.aop.proxy;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,19 +15,21 @@ class Ioc {
 
     private Ioc() {}
 
-    static TestLoggingInterface createTestLogging() {
-        InvocationHandler handler = new DemoInvocationHandler(new TestLogging());
+    static TestLoggingInterface createTestLogging(TestLoggingInterface target) {
+        InvocationHandler handler = new DemoInvocationHandler(target);
         return (TestLoggingInterface) Proxy.newProxyInstance(
                 Ioc.class.getClassLoader(), new Class<?>[] {TestLoggingInterface.class}, handler);
     }
 
     static class DemoInvocationHandler implements InvocationHandler {
-        private final TestLoggingInterface myClass;
-        private final Map<Method, Boolean> methodsLog;
+        private final TestLoggingInterface target;
+        private final Set<Method> methodsLog;
 
-        DemoInvocationHandler(TestLoggingInterface myClass) {
-            this.myClass = myClass;
-            this.methodsLog = new HashMap<>();
+        DemoInvocationHandler(TestLoggingInterface target) {
+            this.target = target;
+            this.methodsLog = Arrays.stream(target.getClass().getDeclaredMethods())
+                    .filter(method -> method.isAnnotationPresent(Log.class))
+                    .collect(Collectors.toSet());
         }
 
         @Override
@@ -34,23 +37,15 @@ class Ioc {
             if (shouldMethodLog(method)) {
                 logger.info("executed method:{}, param: {}", method.getName(), args);
             }
-            return method.invoke(myClass, args);
+            return method.invoke(target, args);
         }
 
         private boolean shouldMethodLog(Method method) {
-            if (methodsLog.containsKey(method)) {
-                return methodsLog.get(method);
-            } else {
-                boolean isLogAnnotationPresent;
-                try {
-                    isLogAnnotationPresent = myClass.getClass()
-                            .getDeclaredMethod(method.getName(), method.getParameterTypes())
-                            .isAnnotationPresent(Log.class);
-                } catch (NoSuchMethodException e) {
-                    throw new RuntimeException(e);
-                }
-                methodsLog.put(method, isLogAnnotationPresent);
-                return isLogAnnotationPresent;
+            try {
+                Method targetMethod = target.getClass().getDeclaredMethod(method.getName(), method.getParameterTypes());
+                return methodsLog.contains(targetMethod);
+            } catch (NoSuchMethodException e) {
+                throw new RuntimeException(e);
             }
         }
     }
