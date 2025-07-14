@@ -30,7 +30,7 @@ class AtmImplTest {
     @DisplayName("Пополнение пустого банкомата банкнотами разных номиналов")
     @Test
     void testEmptyAtm() {
-        Atm atm = new AtmImpl();
+        Atm atm = new AtmImpl(Collections.emptyList());
         assertEquals(0, atm.getBalance());
 
         atm.deposit(banknotes);

@@ -9,10 +9,6 @@ public class Cell {
 
     private final List<Banknote> banknotes;
 
-    private Cell() {
-        throw new UnsupportedOperationException("У ячейки должен быть задан номинал банкнот, которые она хранит");
-    }
-
     public Cell(Denomination denomination) {
         this.denomination = denomination;
         this.banknotes = new ArrayList<>();
