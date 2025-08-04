@@ -2,10 +2,12 @@ package ru.otus.crm.service;
 
 import java.util.List;
 import java.util.Optional;
+import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.otus.core.repository.DataTemplate;
 import ru.otus.core.sessionmanager.TransactionManager;
+import ru.otus.crm.model.Address;
 import ru.otus.crm.model.Client;
 
 public class DbServiceClientImpl implements DBServiceClient {
@@ -39,7 +41,10 @@ public class DbServiceClientImpl implements DBServiceClient {
         return transactionManager.doInReadOnlyTransaction(session -> {
             var clientOptional = clientDataTemplate.findById(session, id);
             log.info("client: {}", clientOptional);
-            return clientOptional;
+            return clientOptional.map(client -> {
+                client.setAddress(Hibernate.unproxy(client.getAddress(), Address.class));
+                return client;
+            });
         });
     }
 

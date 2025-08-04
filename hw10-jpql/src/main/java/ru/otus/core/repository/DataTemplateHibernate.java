@@ -1,5 +1,8 @@
 package ru.otus.core.repository;
 
+import static org.hibernate.jpa.SpecHints.HINT_SPEC_FETCH_GRAPH;
+
+import jakarta.persistence.EntityGraph;
 import java.util.List;
 import java.util.Optional;
 import org.hibernate.Session;
@@ -30,8 +33,12 @@ public class DataTemplateHibernate<T> implements DataTemplate<T> {
 
     @Override
     public List<T> findAll(Session session) {
-        return session.createQuery(String.format("from %s", clazz.getSimpleName()), clazz)
-                .getResultList();
+        var query = session.createQuery(String.format("from %s", clazz.getSimpleName()), clazz);
+        var entityGraphs = session.getEntityGraphs(clazz);
+        for (EntityGraph<?> entityGraph : entityGraphs) {
+            query.setHint(HINT_SPEC_FETCH_GRAPH, entityGraph);
+        }
+        return query.getResultList();
     }
 
     @Override
