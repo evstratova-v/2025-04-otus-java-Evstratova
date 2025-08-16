@@ -11,24 +11,23 @@ public class DbServiceClientCacheProxy implements DBServiceClient {
 
     private final DBServiceClient dbServiceClient;
 
-    private final HwCache<String, Client> cache;
+    private final HwCache<Long, Client> cache;
 
     @Override
     public Client saveClient(Client client) {
         var savedClient = dbServiceClient.saveClient(client);
-        cache.put(getKeyForId(savedClient.getId()), savedClient.clone());
+        cache.put(savedClient.getId(), savedClient.clone());
         return savedClient;
     }
 
     @Override
     public Optional<Client> getClient(long id) {
-        var key = getKeyForId(id);
-        var cachedClient = cache.get(key);
+        var cachedClient = cache.get(id);
         if (cachedClient != null) {
             return Optional.of(cachedClient.clone());
         }
         var optionalClient = dbServiceClient.getClient(id);
-        optionalClient.ifPresent(client -> cache.put(key, client.clone()));
+        optionalClient.ifPresent(client -> cache.put(id, client.clone()));
         return optionalClient;
     }
 
@@ -36,12 +35,8 @@ public class DbServiceClientCacheProxy implements DBServiceClient {
     public List<Client> findAll() {
         var clients = dbServiceClient.findAll();
         for (var client : clients) {
-            cache.put(getKeyForId(client.getId()), client.clone());
+            cache.put(client.getId(), client.clone());
         }
         return clients;
-    }
-
-    private String getKeyForId(long id) {
-        return Long.toString(id);
     }
 }

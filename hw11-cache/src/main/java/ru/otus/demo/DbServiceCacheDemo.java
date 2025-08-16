@@ -47,8 +47,8 @@ public class DbServiceCacheDemo {
                 List.of(new Phone("13-555-22"), new Phone("14-666-333"))));
         long id = clientFirst.getId();
 
-        var cache = new MyCache<String, Client>();
-        HwListener<String, Client> listener =
+        var cache = new MyCache<Long, Client>();
+        HwListener<Long, Client> listener =
                 (key, value, action) -> log.info("key:{}, value:{}, action: {}", key, value, action);
         cache.addListener(listener);
         var dbServiceClientCacheProxy = new DbServiceClientCacheProxy(dbServiceClient, cache);
