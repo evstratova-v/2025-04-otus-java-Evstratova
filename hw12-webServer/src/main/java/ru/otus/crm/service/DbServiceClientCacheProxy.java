@@ -4,38 +4,38 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import ru.otus.cachehw.HwCache;
-import ru.otus.crm.model.Client;
+import ru.otus.crm.dto.ClientDto;
 
 @RequiredArgsConstructor
 public class DbServiceClientCacheProxy implements DBServiceClient {
 
     private final DBServiceClient dbServiceClient;
 
-    private final HwCache<Long, Client> cache;
+    private final HwCache<Long, ClientDto> cache;
 
     @Override
-    public Client saveClient(Client client) {
-        var savedClient = dbServiceClient.saveClient(client);
-        cache.put(savedClient.getId(), savedClient.clone());
+    public ClientDto saveClient(ClientDto clientDto) {
+        var savedClient = dbServiceClient.saveClient(clientDto);
+        cache.put(savedClient.getId(), savedClient);
         return savedClient;
     }
 
     @Override
-    public Optional<Client> getClient(long id) {
+    public Optional<ClientDto> getClient(long id) {
         var cachedClient = cache.get(id);
         if (cachedClient != null) {
-            return Optional.of(cachedClient.clone());
+            return Optional.of(cachedClient);
         }
         var optionalClient = dbServiceClient.getClient(id);
-        optionalClient.ifPresent(client -> cache.put(id, client.clone()));
+        optionalClient.ifPresent(client -> cache.put(id, client));
         return optionalClient;
     }
 
     @Override
-    public List<Client> findAll() {
+    public List<ClientDto> findAll() {
         var clients = dbServiceClient.findAll();
         for (var client : clients) {
-            cache.put(client.getId(), client.clone());
+            cache.put(client.getId(), client);
         }
         return clients;
     }

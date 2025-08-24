@@ -2,13 +2,13 @@ package ru.otus.crm.service;
 
 import java.util.List;
 import java.util.Optional;
-import ru.otus.crm.model.Client;
+import ru.otus.crm.dto.ClientDto;
 
 public interface DBServiceClient {
 
-    Client saveClient(Client client);
+    ClientDto saveClient(ClientDto clientDto);
 
-    Optional<Client> getClient(long id);
+    Optional<ClientDto> getClient(long id);
 
-    List<Client> findAll();
+    List<ClientDto> findAll();
 }

@@ -1,6 +1,5 @@
 package ru.otus.dao;
 
-import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -10,7 +9,6 @@ import ru.otus.model.User;
 public class InMemoryUserDao implements UserDao {
 
     public static final String DEFAULT_PASSWORD = "11111";
-    private final SecureRandom random = new SecureRandom();
     private final Map<Long, User> users;
 
     public InMemoryUserDao() {
@@ -22,17 +20,6 @@ public class InMemoryUserDao implements UserDao {
         users.put(5L, new User(5L, "Стивен Шнайдер", "user5", DEFAULT_PASSWORD));
         users.put(6L, new User(6L, "Джанет Вэрни", "user6", DEFAULT_PASSWORD));
         users.put(7L, new User(7L, "Брэндон Смит", "user7", DEFAULT_PASSWORD));
-    }
-
-    @Override
-    public Optional<User> findById(long id) {
-        return Optional.ofNullable(users.get(id));
-    }
-
-    @Override
-    public Optional<User> findRandomUser() {
-
-        return users.values().stream().skip(random.nextInt(users.size() - 1)).findFirst();
     }
 
     @Override

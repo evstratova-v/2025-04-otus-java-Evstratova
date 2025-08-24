@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.otus.core.repository.DataTemplate;
 import ru.otus.core.sessionmanager.TransactionManager;
+import ru.otus.crm.dto.ClientDto;
 import ru.otus.crm.model.Address;
 import ru.otus.crm.model.Client;
 
@@ -22,8 +23,9 @@ public class DbServiceClientImpl implements DBServiceClient {
     }
 
     @Override
-    public Client saveClient(Client client) {
-        return transactionManager.doInTransaction(session -> {
+    public ClientDto saveClient(ClientDto clientDto) {
+        Client client = ClientDto.toEntity(clientDto);
+        var savedClientEntity = transactionManager.doInTransaction(session -> {
             var clientCloned = client.clone();
             if (client.getId() == null) {
                 var savedClient = clientDataTemplate.insert(session, clientCloned);
@@ -34,11 +36,12 @@ public class DbServiceClientImpl implements DBServiceClient {
             log.info("updated client: {}", savedClient);
             return savedClient;
         });
+        return ClientDto.toDto(savedClientEntity);
     }
 
     @Override
-    public Optional<Client> getClient(long id) {
-        return transactionManager.doInReadOnlyTransaction(session -> {
+    public Optional<ClientDto> getClient(long id) {
+        var clientOptionalEntity = transactionManager.doInReadOnlyTransaction(session -> {
             var clientOptional = clientDataTemplate.findById(session, id);
             log.info("client: {}", clientOptional);
             return clientOptional.map(client -> {
@@ -46,14 +49,16 @@ public class DbServiceClientImpl implements DBServiceClient {
                 return client;
             });
         });
+        return clientOptionalEntity.map(ClientDto::toDto);
     }
 
     @Override
-    public List<Client> findAll() {
-        return transactionManager.doInReadOnlyTransaction(session -> {
+    public List<ClientDto> findAll() {
+        List<Client> clients = transactionManager.doInReadOnlyTransaction(session -> {
             var clientList = clientDataTemplate.findAll(session);
             log.info("clientList:{}", clientList);
             return clientList;
         });
+        return clients.stream().map(ClientDto::toDto).toList();
     }
 }
