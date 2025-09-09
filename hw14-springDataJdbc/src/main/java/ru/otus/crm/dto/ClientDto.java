@@ -21,18 +21,22 @@ public class ClientDto {
     private List<String> phoneNumbers;
 
     public static ClientDto toDto(Client client) {
-        String street = client.getAddress() != null ? client.getAddress().getStreet() : null;
+        String street = client.getAddress() != null ? client.getAddress().street() : null;
         List<String> phoneNumbers = client.getPhones() != null
-                ? client.getPhones().stream().map(Phone::getNumber).toList()
+                ? client.getPhones().stream().map(Phone::number).toList()
                 : new ArrayList<>();
         return new ClientDto(client.getId(), client.getName(), street, phoneNumbers);
     }
 
     public static Client toEntity(ClientDto clientDto) {
-        Address address = clientDto.getStreet() != null ? new Address(clientDto.getStreet()) : null;
+        boolean isNew = clientDto.getId() == null;
+        Long id = isNew ? System.currentTimeMillis() : clientDto.getId();
+        Address address = clientDto.getStreet() != null ? new Address(null, clientDto.getStreet(), id) : null;
         List<Phone> phones = clientDto.getPhoneNumbers() != null
-                ? clientDto.getPhoneNumbers().stream().map(Phone::new).toList()
+                ? clientDto.getPhoneNumbers().stream()
+                        .map(number -> new Phone(null, number, id, null))
+                        .toList()
                 : new ArrayList<>();
-        return new Client(clientDto.getId(), clientDto.getName(), address, phones);
+        return new Client(id, clientDto.getName(), address, phones, isNew);
     }
 }

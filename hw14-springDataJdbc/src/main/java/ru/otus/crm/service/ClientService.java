@@ -4,11 +4,11 @@ import java.util.List;
 import java.util.Optional;
 import ru.otus.crm.dto.ClientDto;
 
-public interface DBServiceClient {
+public interface ClientService {
 
-    ClientDto saveClient(ClientDto clientDto);
+    ClientDto save(ClientDto clientDto);
 
-    Optional<ClientDto> getClient(long id);
+    Optional<ClientDto> findById(long id);
 
     List<ClientDto> findAll();
 }

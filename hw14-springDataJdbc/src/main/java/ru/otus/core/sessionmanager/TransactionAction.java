@@ -1,6 +1,5 @@
 package ru.otus.core.sessionmanager;
 
-import java.util.function.Function;
-import org.hibernate.Session;
+import java.util.function.Supplier;
 
-public interface TransactionAction<T> extends Function<Session, T> {}
+public interface TransactionAction<T> extends Supplier<T> {}
