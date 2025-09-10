@@ -17,24 +17,7 @@
             margin-top: 10px;
         }
     </style>
-    <script>
-        function saveClient() {
-            const clientDataContainer = document.getElementById('clientDataContainer');
-            let formData = new FormData(clientForm);
-            let json = Object.fromEntries(formData);
-            json.phoneNumbers = json.phoneNumbers.split(",").filter(item => item);
-            fetch('/api/client', {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(json)
-             })
-                .then(response => response.json())
-                .then(client => document.getElementById('clientDataContainer').innerHTML = 'Добавлен клиент с id: ' + client.id);
-        }
-    </script>
+    <script src="script.js"></script>
 </head>
 
 <body>
@@ -60,7 +43,7 @@
 <pre id = "clientDataContainer"></pre>
 
 <h4>Список клиентов</h4>
-<table style="width: 600px">
+<table id = "clientsTable" style="width: 600px">
     <thead>
         <tr>
             <th style="width: 100px">Id</th>
@@ -76,9 +59,11 @@
             <td th:text="${client.street}">ул. Клиентов</td>
             <td>
                 <table>
+                    <tbody>
                         <tr th:each="phone : ${client.phoneNumbers}">
                             <td th:text="${phone}">+70000000000</td>
                         </tr>
+                    </tbody>
                 </table>
             </td>
         </tr>
