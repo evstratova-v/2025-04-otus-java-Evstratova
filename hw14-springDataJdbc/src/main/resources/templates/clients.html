@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Клиенты</title>
+    <style type="text/css">
+        body {
+            padding: 50px;
+        }
+
+        label {
+            display: inline-block;
+            width: 100px;
+        }
+
+        .row {
+            margin-top: 10px;
+        }
+    </style>
+    <script src="script.js"></script>
+</head>
+
+<body>
+<h4>Добавить клиента</h4>
+<form id = "clientForm" th:action="@{/client/create}" th:object="${client}" th:method="post" accept-charset="utf-8">
+    <div class="row">
+        <label for="clientName">Имя:</label>
+        <input id="clientName" type="text" name="name" value="Иванов Иван" th:value="*{name}" placeholder="Введите имя клиента">
+    </div>
+    <div class="row">
+        <label for="clientStreet">Улица:</label>
+        <input id="clientStreet" type="text" name="street" value="ул. Клиентов" th:value="*{street}" placeholder="Введите адрес клиента">
+    </div>
+    <div class="row">
+        <label for="clientPhones">Телефоны:</label>
+        <input id="clientPhones" style="width: 400px" type="text" name="phoneNumbers" value="+7-000-000-00-01,+7-000-000-00-02" th:value="*{phoneNumbers}" placeholder="Введите номера телефонов">
+    </div>
+    <div class="row">
+        <button type="submit">Save with form</button>
+        <button type="button" onclick="saveClient()">Save with REST</button>
+    </div>
+</form>
+<pre id = "clientDataContainer"></pre>
+
+<h4>Список клиентов</h4>
+<table id = "clientsTable" style="width: 600px">
+    <thead>
+        <tr>
+            <th style="width: 100px">Id</th>
+            <th style="width: 150px">Имя</th>
+            <th style="width: 150px">Адрес</th>
+            <th style="width: 200px">Телефоны</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="client : ${clients}">
+            <td th:text="${client.id}">1</td>
+            <td th:text="${client.name}">Иванов Иван</td>
+            <td th:text="${client.street}">ул. Клиентов</td>
+            <td>
+                <table>
+                    <tbody>
+                        <tr th:each="phone : ${client.phoneNumbers}">
+                            <td th:text="${phone}">+70000000000</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+    </tbody>
+</table>
+</body>
+</html>
