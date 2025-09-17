@@ -5,6 +5,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.otus.api.SensorDataProcessor;
@@ -17,11 +19,13 @@ public class SensorDataProcessorBuffered implements SensorDataProcessor {
     private final int bufferSize;
     private final SensorDataBufferedWriter writer;
     private final BlockingQueue<SensorData> dataBuffer;
+    private final Lock lock;
 
     public SensorDataProcessorBuffered(int bufferSize, SensorDataBufferedWriter writer) {
         this.bufferSize = bufferSize;
         this.writer = writer;
         this.dataBuffer = new PriorityBlockingQueue<>(bufferSize, Comparator.comparing(SensorData::getMeasurementTime));
+        this.lock = new ReentrantLock();
     }
 
     @Override
@@ -36,7 +40,8 @@ public class SensorDataProcessorBuffered implements SensorDataProcessor {
         }
     }
 
-    public synchronized void flush() {
+    public void flush() {
+        lock.lock();
         try {
             List<SensorData> bufferedData = new ArrayList<>();
             dataBuffer.drainTo(bufferedData, bufferSize);
@@ -45,6 +50,8 @@ public class SensorDataProcessorBuffered implements SensorDataProcessor {
             }
         } catch (Exception e) {
             log.error("Ошибка в процессе записи буфера", e);
+        } finally {
+            lock.unlock();
         }
     }
 
