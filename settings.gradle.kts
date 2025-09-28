@@ -15,6 +15,7 @@ include("hw13-di")
 include("hw14-springDataJdbc")
 include("hw15-executors")
 include("hw16-concurrentCollections")
+include("hw17-grpc")
 
 
 pluginManagement {
